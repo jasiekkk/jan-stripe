@@ -10,49 +10,261 @@ export class MyMCP extends McpAgent {
 	});
 
 	async init() {
-		// Simple addition tool
+		// Stripe customer list tool
 		this.server.tool(
-			"add",
-			{ a: z.number(), b: z.number() },
-			async ({ a, b }) => ({
-				content: [{ type: "text", text: String(a + b) }],
-			})
+			"listStripeCustomers",
+			{},
+			async () => {
+				try {
+					const response = await fetch(
+						'https://api.stripe.com/v1/customers',
+						{
+							headers: {
+								'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+						}
+					);
+
+					if (!response.ok) {
+						const error = await response.json() as { error?: { message: string } };
+						throw new Error(error.error?.message || 'Failed to fetch customers');
+					}
+
+					const customers = await response.json();
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify(customers, null, 2),
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error fetching customers: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							},
+						],
+					};
+				}
+			}
 		);
 
-		// Calculator tool with multiple operations
+		// Stripe coupons list tool
 		this.server.tool(
-			"calculate",
-			{
-				operation: z.enum(["add", "subtract", "multiply", "divide"]),
-				a: z.number(),
-				b: z.number(),
-			},
-			async ({ operation, a, b }) => {
-				let result: number;
-				switch (operation) {
-					case "add":
-						result = a + b;
-						break;
-					case "subtract":
-						result = a - b;
-						break;
-					case "multiply":
-						result = a * b;
-						break;
-					case "divide":
-						if (b === 0)
-							return {
-								content: [
-									{
-										type: "text",
-										text: "Error: Cannot divide by zero",
-									},
-								],
-							};
-						result = a / b;
-						break;
+			"listStripeCoupons",
+			{},
+			async () => {
+				try {
+					const response = await fetch(
+						'https://api.stripe.com/v1/coupons',
+						{
+							headers: {
+								'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+						}
+					);
+
+					if (!response.ok) {
+						const error = await response.json() as { error?: { message: string } };
+						throw new Error(error.error?.message || 'Failed to fetch coupons');
+					}
+
+					const coupons = await response.json();
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify(coupons, null, 2),
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error fetching coupons: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							},
+						],
+					};
 				}
-				return { content: [{ type: "text", text: String(result) }] };
+			}
+		);
+
+		// Stripe products list tool
+		this.server.tool(
+			"listStripeProducts",
+			{},
+			async () => {
+				try {
+					const response = await fetch(
+						'https://api.stripe.com/v1/products',
+						{
+							headers: {
+								'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+						}
+					);
+
+					if (!response.ok) {
+						const error = await response.json() as { error?: { message: string } };
+						throw new Error(error.error?.message || 'Failed to fetch products');
+					}
+
+					const products = await response.json();
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify(products, null, 2),
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error fetching products: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Stripe prices list tool
+		this.server.tool(
+			"listStripePrices",
+			{},
+			async () => {
+				try {
+					const response = await fetch(
+						'https://api.stripe.com/v1/prices',
+						{
+							headers: {
+								'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+						}
+					);
+
+					if (!response.ok) {
+						const error = await response.json() as { error?: { message: string } };
+						throw new Error(error.error?.message || 'Failed to fetch prices');
+					}
+
+					const prices = await response.json();
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify(prices, null, 2),
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error fetching prices: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Stripe balance retrieve tool
+		this.server.tool(
+			"retrieveStripeBalance",
+			{},
+			async () => {
+				try {
+					const response = await fetch(
+						'https://api.stripe.com/v1/balance',
+						{
+							headers: {
+								'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+						}
+					);
+
+					if (!response.ok) {
+						const error = await response.json() as { error?: { message: string } };
+						throw new Error(error.error?.message || 'Failed to retrieve balance');
+					}
+
+					const balance = await response.json();
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify(balance, null, 2),
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error retrieving balance: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Stripe subscriptions list tool
+		this.server.tool(
+			"listStripeSubscriptions",
+			{},
+			async () => {
+				try {
+					const response = await fetch(
+						'https://api.stripe.com/v1/subscriptions',
+						{
+							headers: {
+								'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+								'Content-Type': 'application/x-www-form-urlencoded',
+							},
+						}
+					);
+
+					if (!response.ok) {
+						const error = await response.json() as { error?: { message: string } };
+						throw new Error(error.error?.message || 'Failed to fetch subscriptions');
+					}
+
+					const subscriptions = await response.json();
+					return {
+						content: [
+							{
+								type: "text",
+								text: JSON.stringify(subscriptions, null, 2),
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error fetching subscriptions: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							},
+						],
+					};
+				}
 			}
 		);
 	}
